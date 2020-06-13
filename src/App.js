@@ -14,6 +14,7 @@ export default class App extends Component {
       userInfo: null,
       repos: [],
       starred: [],
+      isFetching: false,
     };
   }
 
@@ -23,38 +24,46 @@ export default class App extends Component {
     const ENTER = 13;
 
     if (key === ENTER) {
+      this.setState({ isFetching: true });
       Api(`https://api.github.com/users/${value}`).then((response) => {
-        const {
-          avatar_url,
-          followers,
-          following,
-          login,
-          name,
-          public_gists,
-          public_repos,
-        } = response;
-
         this.setState({
           userInfo: {
-            photo: avatar_url,
-            name,
-            login,
-            followers,
-            following,
-            repos: public_repos,
+            photo: response.avatar_url,
+            name: response.name,
+            login: response.login,
+            followers: response.followers,
+            following: response.following,
+            repos: response.public_repos,
           },
+          repos: [],
+          starred: [],
         });
+        this.setState({ isFetching: false });
       });
     }
+  }
+
+  getRepos(type) {
+    return (e) => {
+      const { login } = this.state.userInfo;
+      Api(`https://api.github.com/users/${login}/${type}`).then((response) => {
+        this.setState({
+          [type]: response.map((repo) => ({
+            name: repo.name,
+            link: repo.html_url,
+          })),
+        });
+      });
+    };
   }
 
   render() {
     return (
       <AppContent
+        {...this.state}
         handleSearch={(e) => this.handleSearch(e)}
-        userInfo={this.state.userInfo}
-        repos={this.state.repos}
-        starred={this.state.starred}
+        getRepos={this.getRepos("repos")}
+        getStarred={this.getRepos("starred")}
       />
     );
   }

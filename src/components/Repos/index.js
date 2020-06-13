@@ -9,7 +9,7 @@ const Repos = ({ className, title, repos }) => (
     <ul>
       {repos.map((repo, index) => (
         <li key={index}>
-          <a href={repo.href}>{repo.title}</a>
+          <a href={repo.link}>{repo.name}</a>
         </li>
       ))}
     </ul>
@@ -18,6 +18,7 @@ const Repos = ({ className, title, repos }) => (
 
 Repos.defaultProps = {
   className: "repos",
+  title: "Repositórios",
 };
 
 Repos.propTypes = {
